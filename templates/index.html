@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.img-container {
+  float: left;
+  width: 30%;
+  padding: 5px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.map{
+  width:800px;
+  padding-top: 30px;
+  margin: auto;
+}
+
+.room-container{
+  float:left;
+}
+
+.room{
+  width : 500px;
+  height: 300px;
+  display:block;
+  border : 1px solid green;
+}
+
+.hallway{
+  float: left;
+  width : 300px;
+  height : 600px;
+  border : 1px solid green;
+}
+</style>
+<script>
+  
+  window.onload = function startTimer(){
+    var now = new Date();
+    var s = now.getSeconds();
+    var testclock = document.getElementById("testclock");
+    
+    var request = new XMLHttpRequest();
+    request.open("GET", "get_map", true);
+    request.send();
+    request.onreadystatechange = function(){
+			if(request.readyState==4){
+				if(request.status==200){
+					var obj = JSON.parse(request.responseText); //json객체로 변환
+          var camera0 = obj[0];
+          var camera1 = obj[1];
+          var camera2 = obj[2];
+          console.log(camera2);
+          testclock.innerText = camera2;
+				}
+			}	
+		}
+
+    setTimeout(startTimer, 1000);
+  }
+</script>
+
+</head>
+<body>
+<div class="clearfix">  
+  <div class="img-container">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
+  </div>
+
+  <div class="img-container">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=1) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 2">
+  </div>
+  
+  <div class="img-container">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 3">
+  </div>
+</div>
+
+<div class="map">
+  <div class="room-container">
+    <div class = "room" id="room1"></div>
+    <div class = "room" id="room2"></div>
+  </div>
+  <div class="hallway"></div>
+</div>
+
+<div id="testclock"></div>
+</form>
+</body>
+</html>
