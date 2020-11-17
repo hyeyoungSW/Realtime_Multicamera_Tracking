@@ -6,7 +6,7 @@ import tensorflow as tf
 import cv2
 import time
 import os 
-import map as m
+import map
 
 
 #os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
@@ -22,14 +22,14 @@ def index():
     """Video streaming home page."""
     return render_template('index.html')
 
-
+#Send the map information by using json format
 @app.route('/get_map')
 def get_map():
     resp = {}
-    test = m.Map.camera_map
-    for id in test:
-        resp[id] = test[id]
-    print(test)
+    patient_map = map.Map.camera_map
+    for id in patient_map:
+        resp[id] = patient_map[id]
+    #print(patient_map)
     return jsonify(resp)
 
 
@@ -81,7 +81,6 @@ def video_feed(feed_type, device):
         camera_stream = import_module('camera_yolo').Camera
         return Response(gen(camera_stream=camera_stream(feed_type, device, port_list), feed_type=feed_type, device=device),
                        mimetype='multipart/x-mixed-replace; boundary=frame')
-        return resp
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)

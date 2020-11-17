@@ -22,7 +22,7 @@ from reid.data import make_data_loader
 from reid.data.transforms import build_transforms
 from reid.modeling import build_model
 from reid.config import cfg as reidCfg
-import map as patient_map
+import map
 warnings.filterwarnings('ignore')
 
 class Camera(BaseCamera):
@@ -98,15 +98,20 @@ class Camera(BaseCamera):
         # Run inference
         t0 = time.time()
         for i, (path, img, im0, vid_cap) in enumerate(dataloader):
-            patient = patient_map.Map
+            patient_map = map.Map
             now = time.localtime()
-            if(now.tm_min != patient.minute):
-                patient.minute = now.tm_min
-                patient.sec_array.clear()
-            else:
-                if(now.tm_sec not in patient.sec_array):
-                    patient.sec_array.append(now.tm_sec)
-                    patient.camera_map = {0:False, 1:False, 2:False}
+
+            # If the saved minute is not same with the current minute, it means this camera is the first one that access to the map information in this minute.
+            # Since we have to clear the second array every minute, change the minute and clear the second array.
+            if(now.tm_min != patient_map.minute):
+                patient_map.minute = now.tm_min
+                patient_map.sec_array.clear()
+
+            # If there is no information about current second, it means this is the first access to the map in this second.
+            # We should init the map information each second.    
+            if(now.tm_sec not in patient_map.sec_array):
+                patient_map.sec_array.append(now.tm_sec)
+                patient_map.camera_map = {0:False, 1:False, 2:False}
 
             if i % 3 != 0: #이미지 처리 부하 줄이기
                 continue
@@ -186,11 +191,12 @@ class Camera(BaseCamera):
                         print('목표 찾음 %s번 카메라：%s'%(cam_id,distmat[index]))                                    
                         plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
 
-
-                        patient.camera_map[int(cam_id)] = True
-                        filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_c'+cam_id+'.txt'
-                        f = open(filename, 'a')
-                        f.write('\n'+time.strftime('%H : %M : %S'))
-                        f.close
+                        #If the map of this camera ID is still false, it means there was no identified query in this second.
+                        if(patient_map.camera_map[int(cam_id)] == False):
+                            patient_map.camera_map[int(cam_id)] = True
+                            filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_c'+cam_id+'.txt'
+                            f = open(filename, 'a')
+                            f.write('\n'+time.strftime('%H : %M : %S'))
+                            f.close
                 
                 yield cam_id, im0

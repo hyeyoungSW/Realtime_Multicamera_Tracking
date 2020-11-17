@@ -20,8 +20,13 @@
 }
 
 .map{
-  width:800px;
-  padding-top: 30px;
+  /*background : url("map.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;*/
+  text-align: center;
+  width:450px;
+  height : 400px;
+  padding-top: 100px;
   margin: auto;
 }
 
@@ -30,38 +35,48 @@
 }
 
 .room{
-  width : 500px;
-  height: 300px;
+  padding-top: 100px;
+  width : 300px;
+  height: 200px;
   display:block;
   border : 1px solid green;
 }
 
-.hallway{
-  float: left;
-  width : 300px;
-  height : 600px;
+
+#hallway{
+  padding-top : 200px;
+  float : left;
+  width : 150px;
+  height : 400px;
   border : 1px solid green;
 }
 </style>
 <script>
-  
+  function returnIcon(getbool){
+    if(getbool == true){
+      return "find";
+    }else{
+      return "";
+    }
+  }
+  //We should send the request to the server about the information of map each second  
   window.onload = function startTimer(){
     var now = new Date();
     var s = now.getSeconds();
-    var testclock = document.getElementById("testclock");
-    
-    var request = new XMLHttpRequest();
+    var room1 = document.getElementById("room1");
+    var room2 = document.getElementById("room2");
+    var hallway = document.getElementById("hallway");    
+    var request = new XMLHttpRequest();  
     request.open("GET", "get_map", true);
     request.send();
+
     request.onreadystatechange = function(){
 			if(request.readyState==4){
 				if(request.status==200){
-					var obj = JSON.parse(request.responseText); //json객체로 변환
-          var camera0 = obj[0];
-          var camera1 = obj[1];
-          var camera2 = obj[2];
-          console.log(camera2);
-          testclock.innerText = camera2;
+					var map = JSON.parse(request.responseText);
+          room1.innerText = returnIcon(map[2]);
+          room2.innerText = returnIcon(map[1]);
+          hallway.innerText = returnIcon(map[0]);
 				}
 			}	
 		}
@@ -74,7 +89,7 @@
 <body>
 <div class="clearfix">  
   <div class="img-container">
-    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
   </div>
 
   <div class="img-container">
@@ -82,19 +97,17 @@
   </div>
   
   <div class="img-container">
-    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 3">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 3">
   </div>
 </div>
 
 <div class="map">
   <div class="room-container">
-    <div class = "room" id="room1"></div>
-    <div class = "room" id="room2"></div>
+    <div class = "room"><div id="room1">room1</div></div>
+    <div class = "room"><div id="room2">room2</div></div>
   </div>
-  <div class="hallway"></div>
+  <div id="hallway"><div id="hallway1">hallway</div></div>
 </div>
-
-<div id="testclock"></div>
 </form>
 </body>
 </html>

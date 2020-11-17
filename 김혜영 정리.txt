@@ -1,0 +1,17 @@
+1) re-id의 경우 인식이 되었을 때 출력은 할 수 있지만 인식이 되지 않고있을 때는 알수가 없음
+    -> map.py의 Map의 camera_map으로 인식되었는지 안되었는지 저장한다. 
+    camera_map 형식 : {cameraid : existence}
+    ex) {0:True, 1: False, 2: False} //cameraid 0에 환자가 있음.
+    그러나 인식이 되지 않을 경우에 나타낼 방법이 없으므로 일정 시간마다 map의 reset필요 -> 1초로 결정
+
+2) 카메라 3대 각각의 thread가 같은 자원을 사용해야함 (map에 대한 모듈)
+    -> 각각이 계속 reset하면 안되니까 각 초에서 가장 먼저 map에 access한 카메라가 map을 reset해주기로 결정
+    -> Map의 sec_array와 minute을 이용
+
+3) 카메라에 현재 reid에 성공한 사람이 있을 경우 해당 부분에 find라고 띄워줌
+    1. app.py
+        -> 서버역할로 map모듈로 부터 request가 들어올때마다 환자들의 위치(map)을 받아와서 response해줌
+        -> response 형식 : Map의 camera_map과 동일
+
+    2. index.html
+        -> 1초에 한번씩 서버에 request를 보내 서버로 부터 환자들의 위치(map)을 받아옴
