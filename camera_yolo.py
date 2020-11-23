@@ -52,8 +52,8 @@ class Camera(BaseCamera):
         reidModel.to(device).eval()
 
         #reid하기 위한 query 정보
-        query_feats = []
-        query_pids  = []
+        query_feats = defaultdict(list)
+        query_pids = []
 
         #query 정보 가져오기
         for i, batch in enumerate(query_loader):
@@ -61,13 +61,21 @@ class Camera(BaseCamera):
                 img, pid, camid = batch
                 img = img.to(device)
                 feat = reidModel(img)         
-                query_feats.append(feat)
-                query_pids.extend(np.asarray(pid))  
+                for j,f in enumerate(feat):
+                    if(not pid[j] in query_pids):
+                        query_pids.append(pid[j])
+                    print(f.cpu().numpy())
+                    query_feats[pid[j]].append(f.cpu().numpy())
 
         #query 정보 torch형식으로 변경
-        query_feats = torch.cat(query_feats, dim=0)  # torch.Size([2, 2048])
-        print("The query feature is normalized")
-        query_feats = torch.nn.functional.normalize(query_feats, dim=1, p=2) 
+        for pid in query_pids:
+            temp = np.array(query_feats[pid])
+            print(temp)
+            query_feats[pid] = torch.from_numpy(temp).float().to(device) 
+            print(query_feats[pid])
+            query_feats[pid] = torch.nn.functional.normalize(query_feats[pid], dim=1, p=2) 
+            print(query_feats[pid])
+        print("The query feature is normalized") 
 
         
         model = Darknet(cfg, img_size) #config로 디텍션 모델 생성
@@ -171,32 +179,33 @@ class Camera(BaseCamera):
 
                     # m: 2
                     # n: 7
-                    m, n = query_feats.shape[0], gallery_feats.shape[0]
-                    distmat = torch.pow(query_feats, 2).sum(dim=1, keepdim=True).expand(m, n) + \
-                              torch.pow(gallery_feats, 2).sum(dim=1, keepdim=True).expand(n, m).t()
-                    # out=(beta∗M)+(alpha∗mat1@mat2)
-                    # qf^2 + gf^2 - 2 * qf@gf.t()
-                    # distmat - 2 * qf@gf.t()
-                    # distmat: qf^2 + gf^2
-                    # qf: torch.Size([2, 2048])
-                    # gf: torch.Size([7, 2048])
-                    distmat.addmm_(1, -2, query_feats, gallery_feats.t())
-                    # distmat = (qf - gf)^2
-                    # distmat = np.array([[1.79536, 2.00926, 0.52790, 1.98851, 2.15138, 1.75929, 1.99410],
-                    #                     [1.78843, 1.96036, 0.53674, 1.98929, 1.99490, 1.84878, 1.98575]])
-                    distmat = distmat.cpu().detach().numpy()  # <class 'tuple'>: (3, 12)
-                    distmat = distmat.sum(axis=0) / len(query_feats) # 쿼리의 특징과 현재 이미지의 특징의 차이를 계산
-                    index = distmat.argmin()
-                    if distmat[index] < dist_thres: #그 차이가 위에서 지정한 treshold보다 작으면 일치하다
-                        print('목표 찾음 %s번 카메라：%s'%(cam_id,distmat[index]))                                    
-                        plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
+                    for pid in query_pids:
+                        m, n = query_feats[pid].shape[0], gallery_feats.shape[0]
+                        distmat = torch.pow(query_feats[pid], 2).sum(dim=1, keepdim=True).expand(m, n) + \
+                                  torch.pow(gallery_feats, 2).sum(dim=1, keepdim=True).expand(n, m).t()
+                        # out=(beta∗M)+(alpha∗mat1@mat2)
+                        # qf^2 + gf^2 - 2 * qf@gf.t()
+                        # distmat - 2 * qf@gf.t()
+                        # distmat: qf^2 + gf^2
+                        # qf: torch.Size([2, 2048])
+                        # gf: torch.Size([7, 2048])
+                        distmat.addmm_(1, -2, query_feats[pid], gallery_feats.t())
+                        # distmat = (qf - gf)^2
+                        # distmat = np.array([[1.79536, 2.00926, 0.52790, 1.98851, 2.15138, 1.75929, 1.99410],
+                        #                     [1.78843, 1.96036, 0.53674, 1.98929, 1.99490, 1.84878, 1.98575]])
+                        distmat = distmat.cpu().detach().numpy()  # <class 'tuple'>: (3, 12)
+                        distmat = distmat.sum(axis=0) / len(query_feats[pid]) # 쿼리의 특징과 현재 이미지의 특징의 차이를 계산
+                        index = distmat.argmin()
+                        if distmat[index] < dist_thres: #그 차이가 위에서 지정한 treshold보다 작으면 일치하다
+                            print('목표 찾음 %s번 카메라：%s'%(cam_id,distmat[index]))                                    
+                            plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
 
-                        #If the map of this camera ID is still false, it means there was no identified query in this second.
-                        if(patient_map.camera_map[int(cam_id)] == False):
-                            patient_map.camera_map[int(cam_id)] = True
-                            filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_c'+cam_id+'.txt'
-                            f = open(filename, 'a')
-                            f.write('\n'+time.strftime('%H : %M : %S'))
-                            f.close
+                            #If the map of this camera ID is still false, it means there was no identified query in this second.
+                            if(patient_map.camera_map[int(cam_id)] == False):
+                                patient_map.camera_map[int(cam_id)] = True
+                                filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_c'+cam_id+'.txt'
+                                f = open(filename, 'a')
+                                f.write('\n'+time.strftime('%H : %M : %S'))
+                                f.close
                 
                 yield cam_id, im0
