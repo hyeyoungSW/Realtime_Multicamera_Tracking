@@ -26,9 +26,11 @@ def index():
 @app.route('/get_map')
 def get_map():
     resp = {}
-    patient_map = map.Map.camera_map
-    for id in patient_map:
-        resp[id] = patient_map[id]
+    resp['camera_map'] = map.Map.camera_map
+    resp['total_count'] = map.Map.total_count
+    resp['exist_id'] = map.Map.exist_id
+    print(resp)
+
     #print(patient_map)
     return jsonify(resp)
 

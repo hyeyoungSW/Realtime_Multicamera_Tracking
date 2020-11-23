@@ -119,7 +119,9 @@ class Camera(BaseCamera):
             # We should init the map information each second.    
             if(now.tm_sec not in patient_map.sec_array):
                 patient_map.sec_array.append(now.tm_sec)
-                patient_map.camera_map = {0:False, 1:False, 2:False}
+                patient_map.exist_id=[]    
+                patient_map.camera_map = {0:[], 1:[], 2:[]}
+                patient_map.total_count = {0:0, 1:0, 2:0}
 
             if i % 3 != 0: #이미지 처리 부하 줄이기
                 continue
@@ -168,7 +170,7 @@ class Camera(BaseCamera):
                             crop_img = build_transforms(reidCfg)(crop_img).unsqueeze(0)  # torch.Size([1, 3, 256, 128])
                             gallery_img.append(crop_img)
                             plot_one_box(xyxy, im0, color=[128,128,128]) #사람을 흰색으로 박스 치기
-
+                map.Map.total_count[int(cam_id)] = len(gallery_img)
                 if gallery_img: #사람의 이미지만 자른 Array의 데이터가 존재하면
                     gallery_img = torch.cat(gallery_img, dim=0)  # torch.Size([7, 3, 256, 128])
                     gallery_img = gallery_img.to(device)
@@ -191,7 +193,8 @@ class Camera(BaseCamera):
                         # gf: torch.Size([7, 2048])
                         distmat.addmm_(1, -2, query_feats[pid], gallery_feats.t())
                         # distmat = (qf - gf)^2
-                        # distmat = np.array([[1.79536, 2.00926, 0.52790, 1.98851, 2.15138, 1.75929, 1.99410],
+                        # distma2 번 목표 찾음 2번 카메라：1.2738347
+                        #t = np.array([[1.79536, 2.00926, 0.52790, 1.98851, 2.15138, 1.75929, 1.99410],
                         #                     [1.78843, 1.96036, 0.53674, 1.98929, 1.99490, 1.84878, 1.98575]])
                         distmat = distmat.cpu().detach().numpy()  # <class 'tuple'>: (3, 12)
                         distmat = distmat.sum(axis=0) / len(query_feats[pid]) # 쿼리의 특징과 현재 이미지의 특징의 차이를 계산
@@ -200,13 +203,19 @@ class Camera(BaseCamera):
                             print('%i 번 목표 찾음 %s번 카메라：%s'%(pid, cam_id,distmat[index]))
 
                             plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
-
-                            #If the map of this camera ID is still false, it means there was no identified query in this second.
-                            if(patient_map.camera_map[int(cam_id)] == False):
-                                patient_map.camera_map[int(cam_id)] = True
-                                filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_c'+cam_id+'.txt'
+                            if(pid not in patient_map.exist_id):
+                                patient_map.exist_id.append(pid)
+                            if(pid not in patient_map.camera_map[int(cam_id)]):
+                                patient_map.camera_map[int(cam_id)].append(pid)
+                                #print("exist id : ", patient_map.exist_id)
+                                #print(patient_map.camera_map)
+                                print("total : " , len(gallery_img))
+                                filename = time.strftime("%Y%m%d", time.localtime(time.time())) + '_person'+ str(pid) +'.txt'
                                 f = open(filename, 'a')
-                                f.write('\n'+time.strftime('%H : %M : %S'))
+                                f.write('\n' + cam_id + ' - ' + time.strftime('%H : %M : %S'))
                                 f.close
+                            #If the map of this camera ID is still false, it means there was no identified query in this second.
+                            #if(patient_map.camera_map[int(cam_id)] == False):
+
                 
                 yield cam_id, im0
