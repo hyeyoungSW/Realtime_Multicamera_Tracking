@@ -9,7 +9,7 @@ from PIL import Image
 from importlib import import_module
 from collections import Counter
 import datetime
-
+from collections import defaultdict
 import argparse
 import time, datetime
 from sys import platform
@@ -196,8 +196,9 @@ class Camera(BaseCamera):
                         distmat = distmat.cpu().detach().numpy()  # <class 'tuple'>: (3, 12)
                         distmat = distmat.sum(axis=0) / len(query_feats[pid]) # 쿼리의 특징과 현재 이미지의 특징의 차이를 계산
                         index = distmat.argmin()
-                        if distmat[index] < dist_thres: #그 차이가 위에서 지정한 treshold보다 작으면 일치하다
-                            print('목표 찾음 %s번 카메라：%s'%(cam_id,distmat[index]))                                    
+                        if distmat[index] < dist_thres: #그 차이가 위에서 지정한 treshold보다 작으면 일치하다                          
+                            print('%i 번 목표 찾음 %s번 카메라：%s'%(pid, cam_id,distmat[index]))
+
                             plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
 
                             #If the map of this camera ID is still false, it means there was no identified query in this second.
