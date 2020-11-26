@@ -52,12 +52,13 @@
 }
 </style>
 <script>
-  function returnIcon(getbool){
-    if(getbool == true){
-      return "find";
-    }else{
-      return "";
+  function returnIcon(map_array){
+    var ret = "";
+    print(map_array);
+    for(var i=0; i<map_array.length; i++){
+      ret = ret + map_array[i] + " ";
     }
+    return ret;
   }
   //We should send the request to the server about the information of map each second  
   window.onload = function startTimer(){
@@ -73,10 +74,14 @@
     request.onreadystatechange = function(){
 			if(request.readyState==4){
 				if(request.status==200){
-					var map = JSON.parse(request.responseText);
-          /*room1.innerText = returnIcon(map[2]);
-          room2.innerText = returnIcon(map[1]);
-          hallway.innerText = returnIcon(map[0]);*/
+					var map = JSON.parse(request.responseText);         
+
+          /*room1.innerText = map['camera_map'].values(0);
+          room2.innerText = map['camera_map'].values(1);
+          hallway.innerText = map['camera_map'].values(2);*/
+          room1.innerText = Object.values(Object.entries(map)[0])[1][2];
+          room2.innerText = Object.values(Object.entries(map)[0])[1][0];
+          hallway.innerText = Object.values(Object.entries(map)[0])[1][1];
 				}
 			}	
 		}
@@ -84,7 +89,6 @@
     setTimeout(startTimer, 1000);
   }
 </script>
-
 </head>
 <body>
 <div class="clearfix">  
@@ -92,7 +96,7 @@
     <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
   </div>
 
-  <div class="img-container">
+  <div class="img-container"> 
     <img src="{{ url_for('video_feed', feed_type='yolo', device=1) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 2">
   </div>
   

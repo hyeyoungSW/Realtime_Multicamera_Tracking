@@ -202,7 +202,7 @@ class Camera(BaseCamera):
                         if distmat[index] < dist_thres: #그 차이가 위에서 지정한 treshold보다 작으면 일치하다                          
                             print('%i 번 목표 찾음 %s번 카메라：%s'%(pid, cam_id,distmat[index]))
 
-                            plot_one_box(gallery_loc[index], im0, label='find!', color=[0,0,255])
+                            plot_one_box(gallery_loc[index], im0, label=str(pid), color=[0,0,255])
                             if(pid not in patient_map.exist_id):
                                 patient_map.exist_id.append(pid)
                             if(pid not in patient_map.camera_map[int(cam_id)]):
