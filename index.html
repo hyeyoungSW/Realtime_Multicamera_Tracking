@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.img-container {
+  float: left;
+  width: 30%;
+  padding: 5px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.map{
+  /*background : url("map.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;*/
+  text-align: center;
+  width:450px;
+  height : 400px;
+  padding-top: 100px;
+  margin: auto;
+}
+
+.room-container{
+  float:left;
+}
+
+.room{
+  padding-top: 100px;
+  width : 300px;
+  height: 200px;
+  display:block;
+  border : 1px solid green;
+}
+
+
+#hallway{
+  padding-top : 200px;
+  float : left;
+  width : 150px;
+  height : 400px;
+  border : 1px solid green;
+}
+</style>
+<script>
+  function returnIcon(map_array){
+    var ret = "";
+    print(map_array);
+    for(var i=0; i<map_array.length; i++){
+      ret = ret + map_array[i] + " ";
+    }
+    return ret;
+  }
+  //We should send the request to the server about the information of map each second  
+  window.onload = function startTimer(){
+    var now = new Date();
+    var s = now.getSeconds();
+    var room1 = document.getElementById("room1");
+    var room2 = document.getElementById("room2");
+    var hallway = document.getElementById("hallway");    
+    var request = new XMLHttpRequest();  
+    request.open("GET", "get_map", true);
+    request.send();
+
+    request.onreadystatechange = function(){
+			if(request.readyState==4){
+				if(request.status==200){
+					var map = JSON.parse(request.responseText);         
+
+          /*room1.innerText = map['camera_map'].values(0);
+          room2.innerText = map['camera_map'].values(1);
+          hallway.innerText = map['camera_map'].values(2);*/
+          room1.innerText = Object.values(Object.entries(map)[0])[1][2];
+          room2.innerText = Object.values(Object.entries(map)[0])[1][0];
+          hallway.innerText = Object.values(Object.entries(map)[0])[1][1];
+				}
+			}	
+		}
+
+    setTimeout(startTimer, 1000);
+  }
+</script>
+</head>
+<body>
+<div class="clearfix">  
+  <div class="img-container">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
+  </div>
+
+  <div class="img-container"> 
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=1) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 2">
+  </div>
+  
+  <div class="img-container">
+    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 3">
+  </div>
+</div>
+
+<div class="map">
+  <div class="room-container">
+    <div class = "room"><div id="room1">room1</div></div>
+    <div class = "room"><div id="room2">room2</div></div>
+  </div>
+  <div id="hallway"><div id="hallway1">hallway</div></div>
+</div>
+</form>
+</body>
+</html>

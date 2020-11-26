@@ -43,7 +43,7 @@ class Camera(BaseCamera):
         img_size=416
         conf_thres=0.25
         nms_thres=0.4
-        dist_thres=1.3
+        dist_thres=1.4
 
         #reid 모델 생성
         query_loader, num_query = make_data_loader(reidCfg)
@@ -64,17 +64,13 @@ class Camera(BaseCamera):
                 for j,f in enumerate(feat):
                     if(not pid[j] in query_pids):
                         query_pids.append(pid[j])
-                    print(f.cpu().numpy())
                     query_feats[pid[j]].append(f.cpu().numpy())
 
         #query 정보 torch형식으로 변경
         for pid in query_pids:
             temp = np.array(query_feats[pid])
-            print(temp)
             query_feats[pid] = torch.from_numpy(temp).float().to(device) 
-            print(query_feats[pid])
             query_feats[pid] = torch.nn.functional.normalize(query_feats[pid], dim=1, p=2) 
-            print(query_feats[pid])
         print("The query feature is normalized") 
 
         
@@ -94,7 +90,6 @@ class Camera(BaseCamera):
             model.half()
 
         # Set Dataloader
-        print("cam id is "+cam_id)
         dataloader = LoadWebcam(cam_id, img_size=img_size, half=half)
 
         # Get classes and colors
@@ -123,7 +118,7 @@ class Camera(BaseCamera):
                 patient_map.camera_map = {0:[], 1:[], 2:[]}
                 patient_map.total_count = {0:0, 1:0, 2:0}
 
-            if i % 3 != 0: #이미지 처리 부하 줄이기
+            if i % 5 != 0: #이미지 처리 부하 줄이기
                 continue
 
             # Get detections shape: (3, 416, 320)

@@ -1,117 +1,568 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<style>
-* {
-  box-sizing: border-box;
-}
-
-.img-container {
-  float: left;
-  width: 30%;
-  padding: 5px;
-}
-
-.clearfix::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-
-.map{
-  /*background : url("map.jpg");
+    <title>RED Mask - KAU Capstone Design 2020 </title>
+    <!-- HTML5 Shim and Respond.js IE9 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="CodedThemes">
+    <meta name="keywords"
+        content=" Admin , Responsive, Landing, Bootstrap, App, Template, Mobile, iOS, Android, apple, creative app">
+    <meta name="author" content="CodedThemes">
+    <!-- Favicon icon -->
+    <link rel="icon" href="{{url_for('static',filename='images/favicon.ico')}}" type="image/x-icon">
+    <!-- Google font-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
+    <!-- Required Fremwork -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/bootstrap/css/bootstrap.min.css')}}">
+    <!-- themify-icons line icon -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='icon/themify-icons/themify-icons.css')}}">
+    <!-- ico font -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='icon/icofont/css/icofont.css')}}">
+    <!-- Style.css -->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/style.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/jquery.mCustomScrollbar.css')}}">
+    <style>
+        .map {
+            /*background : url("map.jpg");
   background-repeat: no-repeat;
   background-size: 100% 100%;*/
-  text-align: center;
-  width:450px;
-  height : 400px;
-  padding-top: 100px;
-  margin: auto;
-}
+            text-align: center;
+            width: 450px;
+            height: 400px;
+            margin: auto;
+        }
 
-.room-container{
-  float:left;
-}
+        .room-container {
+            float: left;
+        }
 
-.room{
-  padding-top: 100px;
-  width : 300px;
-  height: 200px;
-  display:block;
-  border : 1px solid green;
-}
+        .room {
+            padding-top: 100px;
+            width: 300px;
+            height: 200px;
+            display: block;
+            border: 1px solid green;
+        }
 
 
-#hallway{
-  padding-top : 200px;
-  float : left;
-  width : 150px;
-  height : 400px;
-  border : 1px solid green;
-}
-</style>
-<script>
-  function returnIcon(map_array){
-    var ret = "";
-    print(map_array);
-    for(var i=0; i<map_array.length; i++){
-      ret = ret + map_array[i] + " ";
-    }
-    return ret;
-  }
-  //We should send the request to the server about the information of map each second  
-  window.onload = function startTimer(){
-    var now = new Date();
-    var s = now.getSeconds();
-    var room1 = document.getElementById("room1");
-    var room2 = document.getElementById("room2");
-    var hallway = document.getElementById("hallway");    
-    var request = new XMLHttpRequest();  
-    request.open("GET", "get_map", true);
-    request.send();
-
-    request.onreadystatechange = function(){
-			if(request.readyState==4){
-				if(request.status==200){
-					var map = JSON.parse(request.responseText);         
-
-          /*room1.innerText = map['camera_map'].values(0);
-          room2.innerText = map['camera_map'].values(1);
-          hallway.innerText = map['camera_map'].values(2);*/
-          room1.innerText = Object.values(Object.entries(map)[0])[1][2];
-          room2.innerText = Object.values(Object.entries(map)[0])[1][0];
-          hallway.innerText = Object.values(Object.entries(map)[0])[1][1];
-				}
-			}	
-		}
-
-    setTimeout(startTimer, 1000);
-  }
-</script>
+        #hallway {
+            padding-top: 200px;
+            float: left;
+            width: 150px;
+            height: 400px;
+            border: 1px solid green;
+        }
+    </style>
 </head>
+
 <body>
-<div class="clearfix">  
-  <div class="img-container">
-    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 1">
-  </div>
+    <!-- Pre-loader start -->
+    <div class="theme-loader">
+        <div class="ball-scale">
+            <div class='contain'>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
 
-  <div class="img-container"> 
-    <img src="{{ url_for('video_feed', feed_type='yolo', device=1) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 2">
-  </div>
-  
-  <div class="img-container">
-    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}" class="center"  style="border:1px solid black;width:100%" alt="YOLO Stream 3">
-  </div>
-</div>
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+                <div class="ring">
+                    <div class="frame"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Pre-loader end -->
+    <div id="pcoded" class="pcoded">
+        <div class="pcoded-overlay-box"></div>
+        <div class="pcoded-container navbar-wrapper">
 
-<div class="map">
-  <div class="room-container">
-    <div class = "room"><div id="room1">room1</div></div>
-    <div class = "room"><div id="room2">room2</div></div>
-  </div>
-  <div id="hallway"><div id="hallway1">hallway</div></div>
+            <nav class="navbar header-navbar pcoded-header">
+                <div class="navbar-wrapper">
+
+                    <div class="navbar-logo">
+                        <a class="mobile-menu" id="mobile-collapse" href="#!">
+                            <i class="ti-menu"></i>
+                        </a>
+                        <a class="mobile-search morphsearch-search" href="#">
+                            <i class="ti-search"></i>
+                        </a>
+                        <a href="index.html">
+                            <img class="img-fluid" src="assets/images/logo3.png" alt="Theme-Logo" />
+                        </a>
+                        <a class="mobile-options">
+                            <i class="ti-more"></i>
+                        </a>
+                    </div>
+
+                    <div class="navbar-container container-fluid">
+                        <ul class="nav-left">
+                            <li>
+                                <div class="sidebar_toggle"><a href="javascript:void(0)"><i class="ti-menu"></i></a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a href="#!" onclick="javascript:toggleFullScreen()">
+                                    <i class="ti-fullscreen"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="pcoded-main-container">
+                <div class="pcoded-wrapper">
+                    <nav class="pcoded-navbar">
+                        <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
+                        <div class="pcoded-inner-navbar main-menu">
+                            <div class="">
+                                <div class="main-menu-header">
+                                    <img class="img-40 img-radius" src="assets/images/avatar-4.jpg"
+                                        alt="User-Profile-Image">
+                                    <div class="user-details">
+                                        <span>Y.M/H.Y/J.H</span>
+                                        <span id="more-details">AI Engineer</span>
+                                    </div>
+                                </div>
+                                <div class="pcoded-navigatio-lavel" data-i18n="nav.category.navigation">Main</div>
+                                <ul class="pcoded-item pcoded-left-item">
+                                    <li class="active">
+                                        <a href="index.html">
+                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="pcoded-hasmenu">
+                                        <a href="javascript:void(0)">
+                                            <span class="pcoded-micon"><i class="ti-layout-grid2-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.basic-components.main">Menu</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                        <ul class="pcoded-submenu">
+                                            <li class=" ">
+                                                <a href="accordion.html">
+                                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.basic-components.alert">ClassRoom</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                            </li>
+                                            <li class=" ">
+                                                <a href="icon-themify.html">
+                                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.basic-components.breadcrumbs">People</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <div class="pcoded-navigatio-lavel" data-i18n="nav.category.forms">Detail</div>
+                                <ul class="pcoded-item pcoded-left-item">
+                                    <li>
+                                        <a href="form-elements-component.html">
+                                            <span class="pcoded-micon"><i class="ti-user"></i><b>Our Team</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.form-components.main">Our
+                                                Team</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="bs-basic-table.html">
+                                            <span class="pcoded-micon"><i class="ti-layers-alt"></i><b>FC</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.form-components.main">Develop
+                                                Detail</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                    </nav>
+                    <div class="pcoded-content">
+                        <div class="pcoded-inner-content">
+                            <div class="main-body">
+                                <div class="page-wrapper">
+                                    <div class="page-body">
+                                        <div class="row">
+                                            <!-- card1 start -->
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5>Camera 1</h5>
+                                                        <div class="card-header-left ">
+                                                        </div>
+                                                        <div class="card-header-right">
+                                                            <ul class="list-unstyled card-option">
+                                                                <li><i class="icofont icofont-simple-left "></i></li>
+                                                                <li><i class="icofont icofont-maximize full-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-minus minimize-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-refresh reload-card"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <img src="{{ url_for('video_feed', feed_type='yolo', device=2) }}"
+                                                        class="center" style="border:1px solid black;width:100%"
+                                                        alt="YOLO Stream 1">
+                                                </div>
+                                            </div>
+                                            <!-- card1 end -->
+                                            <!-- card1 start -->
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5>Camera 2</h5>
+                                                        <div class="card-header-left ">
+                                                        </div>
+                                                        <div class="card-header-right">
+                                                            <ul class="list-unstyled card-option">
+                                                                <li><i class="icofont icofont-simple-left "></i></li>
+                                                                <li><i class="icofont icofont-maximize full-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-minus minimize-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-refresh reload-card"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <img src="{{ url_for('video_feed', feed_type='yolo', device=1) }}"
+                                                        class="center" style="border:1px solid black;width:100%"
+                                                        alt="YOLO Stream 2">
+                                                </div>
+                                            </div>
+                                            <!-- card1 end -->
+                                            <!-- card1 start -->
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5>Camera 3</h5>
+                                                        <div class="card-header-left ">
+                                                        </div>
+                                                        <div class="card-header-right">
+                                                            <ul class="list-unstyled card-option">
+                                                                <li><i class="icofont icofont-simple-left "></i></li>
+                                                                <li><i class="icofont icofont-maximize full-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-minus minimize-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-refresh reload-card"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <img src="{{ url_for('video_feed', feed_type='yolo', device=0) }}"
+                                                        class="center" style="border:1px solid black;width:100%"
+                                                        alt="YOLO Stream 3">
+                                                </div>
+                                            </div>
+                                            <!-- card1 end -->
+
+                                            <!-- Statestics Start -->
+                                            <div class="col-md-12 col-xl-8">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5>Map</h5>
+                                                        <div class="card-header-left ">
+                                                        </div>
+                                                        <div class="card-header-right">
+                                                            <ul class="list-unstyled card-option">
+                                                                <li><i class="icofont icofont-simple-left "></i></li>
+                                                                <li><i class="icofont icofont-maximize full-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-minus minimize-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-refresh reload-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-error close-card"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-block">
+                                                        <div class="map">
+                                                            <div class="room-container">
+                                                                <div class="room">
+                                                                    <div id="room1">room1</div>
+                                                                </div>
+                                                                <div class="room">
+                                                                    <div id="room2">room2</div>
+                                                                </div>
+                                                            </div>
+                                                            <div id="hallway">
+                                                                <div id="hallway1">hallway</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Statestics Start end-->
+
+                                            <!-- Statestics Start -->
+                                            <!-- <div class="col-md-12 col-xl-8">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h5>Statestics</h5>
+                                                        <div class="card-header-left ">
+                                                        </div>
+                                                        <div class="card-header-right">
+                                                            <ul class="list-unstyled card-option">
+                                                                <li><i class="icofont icofont-simple-left "></i></li>
+                                                                <li><i class="icofont icofont-maximize full-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-minus minimize-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-refresh reload-card"></i>
+                                                                </li>
+                                                                <li><i class="icofont icofont-error close-card"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-block">
+                                                        <div id="statestics-chart" style="height:517px;"></div>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- Statestics Start end-->
+                                            <div class="col-md-12 col-xl-4">
+                                                <div class="card fb-card">
+                                                    <div class="card-header">
+                                                        <i class="ti-check-box"></i>
+                                                        <div class="d-inline-block">
+                                                            <h5>인원별</h5>
+                                                            <span>전체 인원 대비 확진자</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-block text-center">
+                                                        <div class="row">
+                                                            <div class="col-6 b-r-default">
+                                                                <h2 id="total_patient">2</h2>
+                                                                <p class="text-muted">발견 확진자</p>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <h2 id="total_count">10</h2>
+                                                                <p class="text-muted">전체 인원</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card dribble-card">
+                                                    <div class="card-header">
+                                                        <i class="ti-stats-up"></i>
+                                                        <div class="d-inline-block">
+                                                            <h5>기록 보기</h5>
+                                                            <a href="bs-basic-table.html"><span>자세히 ></span></a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-block text-center">
+                                                        <div class="row">
+                                                            <div class="col-6 b-r-default">
+                                                                <h2>00:12:40</h2>
+                                                                <p class="text-muted">총 방문 시간</p>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <h2>10:00:31</h2>
+                                                                <p class="text-muted">프로그램 실행 시간</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card twitter-card">
+                                                    <div class="card-header">
+                                                        <i class="ti-comment"></i>
+                                                        <div class="d-inline-block">
+                                                            <h5>코로나 19 관련 알림</h5>
+                                                            <span>News</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-block text-center">
+                                                        <div class="row">
+                                                            <div class="col-6 b-r-default">
+                                                                <h2>10</h2>
+                                                                <p class="text-muted">오늘 수도권 재난알림</p>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <h2>999+</h2>
+                                                                <p class="text-muted">오늘 전국 재난알림</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="styleSelector">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="alert" data-type="inverse" data-animation-in="animated fadeInRight"
+        data-animation-out="animated fadeOutRight" style="display:none;"></button>
+    <!-- Warning Section Starts -->
+    <!-- Older IE warning message -->
+    <!--[if lt IE 9]>
+<div class="ie-warning">
+    <h1>Warning!!</h1>
+    <p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers to access this website.</p>
+    <div class="iew-container">
+        <ul class="iew-download">
+            <li>
+                <a href="http://www.google.com/chrome/">
+                    <img src="assets/images/browser/chrome.png" alt="Chrome">
+                    <div>Chrome</div>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.mozilla.org/en-US/firefox/new/">
+                    <img src="assets/images/browser/firefox.png" alt="Firefox">
+                    <div>Firefox</div>
+                </a>
+            </li>
+            <li>
+                <a href="http://www.opera.com">
+                    <img src="assets/images/browser/opera.png" alt="Opera">
+                    <div>Opera</div>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.apple.com/safari/">
+                    <img src="assets/images/browser/safari.png" alt="Safari">
+                    <div>Safari</div>
+                </a>
+            </li>
+            <li>
+                <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
+                    <img src="assets/images/browser/ie.png" alt="">
+                    <div>IE (9 & above)</div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <p>Sorry for the inconvenience!</p>
 </div>
-</form>
+<![endif]-->
+    <!-- Warning Section Ends -->
+    <!-- Required Jquery -->
+    <script type="text/javascript" src="{{url_for('static',filename='js/jquery/jquery.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='js/jquery-ui/jquery-ui.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='js/popper.js/popper.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='js/bootstrap/js/bootstrap.min.js')}}"></script>
+    <!-- jquery slimscroll js -->
+    <script type="text/javascript"
+        src="{{url_for('static',filename='js/jquery-slimscroll/jquery.slimscroll.js')}}"></script>
+    <!-- modernizr js -->
+
+    <!-- am chart -->
+    <script src="{{url_for('static',filename='pages/widget/amchart/amcharts.min.js')}}"></script>
+    <script src="{{url_for('static',filename='pages/widget/amchart/serial.min.js')}}"></script>
+    <!-- Todo js -->
+    <!-- <script type="text/javascript " src="{{url_for('static',filename='pages/todo/todo.js')}}"></script> -->
+    <!-- Custom js -->
+    <script type="text/javascript" src="{{url_for('static',filename='pages/dashboard/custom-dashboard.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename='js/script.js')}}"></script>
+    <script type="text/javascript " src="{{url_for('static',filename='js/SmoothScroll.js')}}"></script>
+    <script src="{{url_for('static',filename='js/pcoded.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/demo-12.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery.mCustomScrollbar.concat.min.js')}}"></script>
+    <script>
+        var $window = $(window);
+        var nav = $('.fixed-button');
+        $window.scroll(function () {
+            if ($window.scrollTop() >= 200) {
+                nav.addClass('active');
+            }
+            else {
+                nav.removeClass('active');
+            }
+        });
+    </script>
+
+    <script>
+        function returnIcon(getbool) {
+            if (getbool == true) {
+
+                return "find";
+            } else {
+                return "";
+            }
+        }
+        //We should send the request to the server about the information of map each second  
+        window.onload = function startTimer() {
+            var now = new Date();
+            var s = now.getSeconds();
+            var room1 = document.getElementById("room1");
+            var room2 = document.getElementById("room2");
+            var hallway = document.getElementById("hallway");
+            var total_patient = document.getElementById("total_patient");
+            var total_count = document.getElementById("total_count");
+            var request = new XMLHttpRequest();
+            request.open("GET", "get_map", true);
+            request.send();
+
+            request.onreadystatechange = function () {
+                if (request.readyState == 4) {
+                    if (request.status == 200) {
+                        var map = JSON.parse(request.responseText);
+                        /*room1.innerText = returnIcon(map[2]);
+                        room2.innerText = returnIcon(map[1]);
+                        hallway.innerText = returnIcon(map[0]);*/
+                        room1.innerText = Object.values(Object.entries(map)[0])[1][2];
+                        room2.innerText = Object.values(Object.entries(map)[0])[1][0];
+                        hallway.innerText = Object.values(Object.entries(map)[0])[1][1];
+
+                        total_patient.innerText = Object.values(Object.entries(map)[1])[1].length;
+                        total_count.innerText = Object.values(Object.entries(map)[2])[1][0] + Object.values(Object.entries(map)[2])[1][1] + Object.values(Object.entries(map)[2])[1][2];
+                    }
+                }
+            }
+
+            setTimeout(startTimer, 1000);
+        }
+    </script>
 </body>
+
 </html>
